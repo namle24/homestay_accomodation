@@ -7,8 +7,13 @@ class Settings(BaseSettings):
     app_name: str = "Homestay Accommodation Backend"
     environment: str = "development"
 
-    database_url: str = "postgresql+psycopg://user:password@localhost:5432/homestay_db"
+    database_url: str = "sqlite:///./homestay.db"
     redis_url: str = "redis://localhost:6379/0"
+
+    # JWT Settings
+    secret_key: str = "your-super-secret-key-change-this-in-env"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

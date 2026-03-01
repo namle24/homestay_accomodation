@@ -1,63 +1,128 @@
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from sqlalchemy import select, func, and_, or_
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from ..db import get_db
+from ..models.booking import Booking, BookingStatusEnum
+from ..models.room import Room
+from ..models.user import UserRoleEnum
+from ..schemas.booking import BookingCreate, BookingOut, BookingStatusUpdate
+from .deps import get_current_user, RoleChecker
 
-from backend.db import get_db
-from backend.models import Booking, Room
-from backend.models.booking import BookingSourceEnum, BookingStatusEnum
-from backend.schemas.booking import BookingCreate, BookingResponse
+router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
-
-router = APIRouter(prefix="/bookings", tags=["bookings"])
-
-
-@router.post("/", response_model=BookingResponse, status_code=201)
-def create_booking(payload: BookingCreate, db: Session = Depends(get_db)) -> BookingResponse:
-    # Validate date order at API level (dù Pydantic đã check)
-    if payload.start_date >= payload.end_date:
-        raise HTTPException(status_code=400, detail="start_date must be before end_date")
-
-    # Lấy thông tin phòng
-    room = db.query(Room).filter(Room.id == payload.room_id).first()
+@router.post("/", response_model=BookingOut, status_code=status.HTTP_201_CREATED)
+def create_booking(
+    booking_in: BookingCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """Protected: Create a new booking with anti-overbooking check."""
+    # Logic anti-overbooking within a transaction
+    # We use a simple select with for update or just a careful check since it's an MVP
+    
+    # 1. Get room total capacity
+    room = db.query(Room).filter(Room.id == booking_in.room_id).first()
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
-
-    # Tính tổng quantity đã book cho phòng này trong khoảng ngày (overlap logic)
-    booked_quantity = (
-        db.query(func.coalesce(func.sum(Booking.quantity), 0))
-        .filter(
-            Booking.room_id == payload.room_id,
-            Booking.status.in_(
-                [BookingStatusEnum.PENDING, BookingStatusEnum.CONFIRMED]
-            ),
-            Booking.start_date < payload.end_date,
-            Booking.end_date > payload.start_date,
-        )
-        .scalar()
-    )
-
-    available_units = room.total_units - booked_quantity
-    if available_units < payload.quantity:
+    
+    # 2. Query overlapping bookings
+    # Overlap: booking.start_date < checkout AND booking.end_date > checkin
+    overlap_bookings = db.query(func.sum(Booking.quantity)).filter(
+        Booking.room_id == booking_in.room_id,
+        Booking.status != BookingStatusEnum.CANCELLED,
+        Booking.start_date < booking_in.end_date,
+        Booking.end_date > booking_in.start_date
+    ).scalar() or 0
+    
+    available_units = room.total_units - overlap_bookings
+    
+    if available_units < booking_in.quantity:
         raise HTTPException(
             status_code=400,
-            detail="Not enough availability for the requested dates",
+            detail=f"Not enough available units. Only {available_units} left."
+        )
+    
+    # 3. Calculate total price
+    num_nights = (booking_in.end_date - booking_in.start_date).days
+    total_price = room.base_price * booking_in.quantity * num_nights
+
+    # 4. Create booking
+    db_booking = Booking(
+        **booking_in.model_dump(),
+        user_id=current_user.id,
+        status=BookingStatusEnum.PENDING,
+        total_price=total_price
+    )
+    db.add(db_booking)
+    db.commit()
+    db.refresh(db_booking)
+    return db_booking
+
+@router.get("/", response_model=List[BookingOut])
+def list_bookings(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """Protected: Get list of bookings with RBAC filtering."""
+    query = db.query(Booking)
+    
+    # RBAC: Admin/Receptionist sees all, User sees only theirs
+    if current_user.role not in [UserRoleEnum.ADMIN, UserRoleEnum.RECEPTIONIST]:
+        query = query.filter(Booking.user_id == current_user.id)
+    
+    return query.all()
+
+@router.get("/{booking_id}", response_model=BookingOut)
+def get_booking(
+    booking_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """Protected: Get booking details with RBAC check."""
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # RBAC check
+    if current_user.role not in [UserRoleEnum.ADMIN, UserRoleEnum.RECEPTIONIST]:
+        if booking.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to access this booking")
+            
+    return booking
+
+@router.patch("/{booking_id}/status", response_model=BookingOut)
+def update_booking_status(
+    booking_id: int,
+    status_in: BookingStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(RoleChecker([UserRoleEnum.ADMIN, UserRoleEnum.RECEPTIONIST]))
+):
+    """Protected: Update booking status (Staff only)."""
+    db_booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not db_booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    old_status = db_booking.status
+    new_status = status_in.status
+
+    if old_status == new_status:
+        return db_booking
+
+    # State Machine Rules
+    if old_status == BookingStatusEnum.CANCELLED:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot update status of a cancelled booking"
         )
 
-    booking = Booking(
-        room_id=payload.room_id,
-        guest_name=payload.guest_name,
-        guest_email=payload.guest_email,
-        start_date=payload.start_date,
-        end_date=payload.end_date,
-        quantity=payload.quantity,
-        status=BookingStatusEnum.PENDING,
-        booking_source=BookingSourceEnum.DIRECT,
-    )
-    db.add(booking)
+    # All other transitions are allowed per requirements:
+    # pending -> confirmed / cancelled
+    # confirmed -> cancelled
+    
+    db_booking.status = new_status
     db.commit()
-
-    db.refresh(booking)
-    return BookingResponse.model_validate(booking)
-
+    db.refresh(db_booking)
+    return db_booking

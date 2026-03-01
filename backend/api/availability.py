@@ -12,7 +12,7 @@ from backend.schemas.availability import (
     RoomAvailability,
 )
 
-router = APIRouter(prefix="/availability", tags=["availability"])
+router = APIRouter(prefix="/availability", tags=["Availability"])
 
 
 @router.get("/", response_model=AvailabilityResponse)

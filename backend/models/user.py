@@ -1,11 +1,12 @@
 from datetime import datetime
+from enum import Enum as PyEnum
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
 
 from ..db import Base
 
 
-class UserRoleEnum(str):
+class UserRoleEnum(str, PyEnum):
     ADMIN = "admin"
     RECEPTIONIST = "receptionist"
     USER = "user"

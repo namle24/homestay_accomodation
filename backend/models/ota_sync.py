@@ -1,17 +1,18 @@
 from datetime import datetime
+from enum import Enum as PyEnum
 
 from sqlalchemy import Column, DateTime, Enum, Integer, String, Text
 
 from ..db import Base
 
 
-class OTAProviderEnum(str):
+class OTAProviderEnum(str, PyEnum):
     BOOKING_COM = "booking_com"
     AIRBNB = "airbnb"
     AGODA = "agoda"
 
 
-class OTASyncStatusEnum(str):
+class OTASyncStatusEnum(str, PyEnum):
     SUCCESS = "success"
     ERROR = "error"
 
@@ -21,21 +22,12 @@ class OTASync(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     provider = Column(
-        Enum(
-            OTAProviderEnum.BOOKING_COM,
-            OTAProviderEnum.AIRBNB,
-            OTAProviderEnum.AGODA,
-            name="ota_provider_enum",
-        ),
+        Enum(OTAProviderEnum, name="ota_provider_enum"),
         nullable=False,
     )
     last_sync_at = Column(DateTime(timezone=True), nullable=True)
     last_sync_status = Column(
-        Enum(
-            OTASyncStatusEnum.SUCCESS,
-            OTASyncStatusEnum.ERROR,
-            name="ota_sync_status_enum",
-        ),
+        Enum(OTASyncStatusEnum, name="ota_sync_status_enum"),
         nullable=True,
     )
     last_sync_message = Column(Text, nullable=True)

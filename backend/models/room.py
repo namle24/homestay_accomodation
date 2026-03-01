@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum as PyEnum
 
 from sqlalchemy import Column, DateTime, Enum, Integer, Numeric, String, Text
 from sqlalchemy.orm import relationship
@@ -6,7 +7,7 @@ from sqlalchemy.orm import relationship
 from ..db import Base
 
 
-class RoomTypeEnum(str):
+class RoomTypeEnum(str, PyEnum):
     PRIVATE = "private"
     DORM = "dorm"
 
@@ -17,7 +18,7 @@ class Room(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False)
     room_type = Column(
-        Enum(RoomTypeEnum.PRIVATE, RoomTypeEnum.DORM, name="room_type_enum"),
+        Enum(RoomTypeEnum, name="room_type_enum"),
         nullable=False,
     )
     total_units = Column(Integer, nullable=False, default=1)
