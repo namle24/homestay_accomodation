@@ -14,10 +14,11 @@ class RoomAvailability(BaseModel):
     room_id: int
     name: str
     room_type: str
+    description: Optional[str] = None
+    amenities: Optional[List[str]] = None
     base_price: Optional[Decimal] = None
     available_units: int
 
 
 class AvailabilityResponse(BaseModel):
     rooms: List[RoomAvailability]
-

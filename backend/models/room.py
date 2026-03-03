@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum as PyEnum
 
-from sqlalchemy import Column, DateTime, Enum, Integer, Numeric, String, Text
+from sqlalchemy import JSON, Column, DateTime, Enum, Integer, Numeric, String, Text
 from sqlalchemy.orm import relationship
 
 from ..db import Base
@@ -23,6 +23,7 @@ class Room(Base):
     )
     total_units = Column(Integer, nullable=False, default=1)
     description = Column(Text, nullable=True)
+    amenities = Column(JSON, nullable=True)
     max_occupancy = Column(Integer, nullable=True)
     base_price = Column(Numeric(10, 2), nullable=True)
     ota_room_id = Column(String(100), nullable=True, index=True)

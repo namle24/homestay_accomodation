@@ -9,6 +9,7 @@ class RoomBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     room_type: RoomTypeEnum
     description: Optional[str] = None
+    amenities: Optional[list[str]] = Field(default_factory=list)
     base_price: Decimal = Field(..., ge=0)
     total_units: int = Field(..., ge=1)
 
@@ -25,6 +26,7 @@ class RoomUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     room_type: Optional[RoomTypeEnum] = None
     description: Optional[str] = None
+    amenities: Optional[list[str]] = None
     base_price: Optional[Decimal] = Field(None, ge=0)
     total_units: Optional[int] = Field(None, ge=1)
 

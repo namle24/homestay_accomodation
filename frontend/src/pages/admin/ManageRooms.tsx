@@ -15,8 +15,14 @@ const ManageRooms: React.FC = () => {
     room_type: 'private',
     total_units: 1,
     base_price: '',
+    description: '',
+    amenities: [],
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
+
+  const AMENITIES_OPTIONS = [
+    'Wifi', 'Air Conditioning', 'Shower', 'Kitchen', 'TV', 'Parking', 'Pool'
+  ];
 
   const fetchRooms = useCallback(async () => {
     setLoading(true);
@@ -52,6 +58,17 @@ const ManageRooms: React.FC = () => {
     }
   };
 
+  const handleAmenityToggle = (amenity: string) => {
+    setFormData(prev => {
+      const current = prev.amenities || [];
+      if (current.includes(amenity)) {
+        return { ...prev, amenities: current.filter(a => a !== amenity) };
+      } else {
+        return { ...prev, amenities: [...current, amenity] };
+      }
+    });
+  };
+
   const openAddModal = () => {
     setEditingRoomId(null);
     setFormData({
@@ -59,6 +76,8 @@ const ManageRooms: React.FC = () => {
       room_type: 'private',
       total_units: 1,
       base_price: '',
+      description: '',
+      amenities: [],
     });
     setIsModalOpen(true);
   };
@@ -70,6 +89,8 @@ const ManageRooms: React.FC = () => {
       room_type: room.room_type as 'private' | 'dorm',
       total_units: room.total_units,
       base_price: room.base_price,
+      description: room.description || '',
+      amenities: room.amenities || [],
     });
     setIsModalOpen(true);
   };
@@ -280,6 +301,36 @@ const ManageRooms: React.FC = () => {
                         {formData.room_type === 'private' && (
                           <p className="mt-1 text-xs text-gray-500">Private rooms are forcefully allocated 1 unit.</p>
                         )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea
+                          name="description"
+                          id="description"
+                          rows={3}
+                          value={formData.description}
+                          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                          placeholder="Giới thiệu chi tiết về phòng..."
+                        ></textarea>
+                      </div>
+
+                      <div>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">Amenities</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          {AMENITIES_OPTIONS.map(amenity => (
+                            <label key={amenity} className="inline-flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={formData.amenities?.includes(amenity)}
+                                onChange={() => handleAmenityToggle(amenity)}
+                                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 h-4 w-4"
+                              />
+                              <span className="ml-2 text-sm text-gray-600">{amenity}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
 
                       <div>

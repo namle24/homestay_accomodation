@@ -4,6 +4,8 @@ export interface Room {
   room_type: string;
   total_units: number;
   base_price: string;
+  description?: string;
+  amenities?: string[];
 }
 
 export interface AvailableRoom extends Room {
@@ -17,6 +19,8 @@ export interface RoomCreate {
   room_type: 'private' | 'dorm';
   total_units: number;
   base_price: string;
+  description?: string;
+  amenities?: string[];
 }
 
 export interface RoomUpdate {
@@ -24,4 +28,6 @@ export interface RoomUpdate {
   room_type?: 'private' | 'dorm';
   total_units?: number;
   base_price?: string;
+  description?: string;
+  amenities?: string[];
 }

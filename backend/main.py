@@ -6,6 +6,7 @@ from .config import get_settings
 
 
 settings = get_settings()
+print(f"DEBUG: Server using Secret Key {settings.secret_key[:5]}... and Algorithm {settings.algorithm}")
 
 app = FastAPI(
     title=settings.app_name,

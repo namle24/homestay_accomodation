@@ -16,6 +16,7 @@ const BookingCheckout: React.FC = () => {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [guestName, setGuestName] = useState(user?.email?.split('@')[0] || '');
   const [guestEmail, setGuestEmail] = useState(user?.email || '');
   
@@ -69,6 +70,7 @@ const BookingCheckout: React.FC = () => {
         room_id: parseInt(roomId),
         guest_name: guestName,
         guest_email: guestEmail,
+        phone_number: phoneNumber,
         start_date: checkIn,
         end_date: checkOut,
         quantity: quantity,
@@ -185,15 +187,15 @@ const BookingCheckout: React.FC = () => {
                   )}
 
                   <div>
-                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity (Rooms/Beds)</label>
+                    <label htmlFor="phoneNumber" className="block text-sm font-bold text-gray-900">Phone Number (Required for Booking)</label>
                     <input
-                      type="number"
-                      id="quantity"
-                      min={1}
+                      type="tel"
+                      id="phoneNumber"
                       required
-                      value={quantity}
-                      onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      placeholder="e.g., +84 123 456 789"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="mt-1 block w-full border-2 border-primary-100 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-primary-50/30"
                     />
                   </div>
 
@@ -217,6 +219,19 @@ const BookingCheckout: React.FC = () => {
                       required
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Number of Rooms/Guests</label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      min={1}
+                      required
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                     />
                   </div>

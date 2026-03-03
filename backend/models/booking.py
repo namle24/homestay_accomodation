@@ -11,6 +11,7 @@ class BookingStatusEnum(str, PyEnum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
     CANCELLED = "cancelled"
+    COMPLETED = "completed"
 
 
 class BookingSourceEnum(str, PyEnum):
@@ -31,6 +32,8 @@ class Booking(Base):
 
     guest_name = Column(String(255), nullable=False)
     guest_email = Column(String(255), nullable=True)
+    phone_number = Column(String(20), nullable=True)
+    notes = Column(String(1000), nullable=True)
 
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)

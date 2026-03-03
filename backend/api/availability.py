@@ -47,6 +47,8 @@ def get_availability(
             Room.id.label("room_id"),
             Room.name,
             Room.room_type,
+            Room.description,
+            Room.amenities,
             Room.base_price,
             (Room.total_units - func.coalesce(booked_subq.c.booked_quantity, 0)).label(
                 "available_units"

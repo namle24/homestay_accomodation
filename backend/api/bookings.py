@@ -39,7 +39,9 @@ def create_booking(
     
     available_units = room.total_units - overlap_bookings
     
-    if available_units < booking_in.quantity:
+    is_staff = current_user.role in [UserRoleEnum.ADMIN, UserRoleEnum.RECEPTIONIST]
+    
+    if not is_staff and available_units < booking_in.quantity:
         raise HTTPException(
             status_code=400,
             detail=f"Not enough available units. Only {available_units} left."
@@ -50,10 +52,18 @@ def create_booking(
     total_price = room.base_price * booking_in.quantity * num_nights
 
     # 4. Create booking
+    booking_data = booking_in.model_dump()
+    requested_status = booking_data.pop("status", None)
+    
+    # Staff (Admin/Receptionist) can override status
+    final_status = BookingStatusEnum.PENDING
+    if current_user.role in [UserRoleEnum.ADMIN, UserRoleEnum.RECEPTIONIST] and requested_status:
+        final_status = requested_status
+
     db_booking = Booking(
-        **booking_in.model_dump(),
+        **booking_data,
         user_id=current_user.id,
-        status=BookingStatusEnum.PENDING,
+        status=final_status,
         total_price=total_price
     )
     db.add(db_booking)
@@ -110,18 +120,19 @@ def update_booking_status(
 
     if old_status == new_status:
         return db_booking
-
-    # State Machine Rules
-    if old_status == BookingStatusEnum.CANCELLED:
-        raise HTTPException(
-            status_code=400,
-            detail="Cannot update status of a cancelled booking"
-        )
-
-    # All other transitions are allowed per requirements:
-    # pending -> confirmed / cancelled
-    # confirmed -> cancelled
     
+    # Allowed transitions for Staff:
+    # pending -> confirmed / cancelled
+    # confirmed -> cancelled / completed
+    # cancelled -> (none)
+    # completed -> (none)
+    
+    if old_status == BookingStatusEnum.CANCELLED:
+        raise HTTPException(status_code=400, detail="Cannot update a cancelled booking")
+    
+    if old_status == BookingStatusEnum.COMPLETED:
+        raise HTTPException(status_code=400, detail="Cannot update a completed booking")
+
     db_booking.status = new_status
     db.commit()
     db.refresh(db_booking)
