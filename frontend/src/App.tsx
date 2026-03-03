@@ -1,19 +1,43 @@
-import { useState } from 'react'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import Navbar from './components/Navbar';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Home from './pages/Home';
+import BookingCheckout from './pages/BookingCheckout';
+import MyBookings from './pages/MyBookings';
+import ManageRooms from './pages/admin/ManageRooms';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-primary-600">
-          Homestay Accommodation
-        </h1>
-        <p className="mt-4 text-gray-600">
-          Frontend scaffolded with React, Vite, TS and Tailwind CSS.
-        </p>
-      </div>
-    </div>
-  )
+    <AuthProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <div className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                 <Route path="/book/:roomId" element={<BookingCheckout />} />
+                 <Route path="/my-bookings" element={<MyBookings />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route element={<AdminRoute />}>
+                 <Route path="/manage-rooms" element={<ManageRooms />} />
+              </Route>
+            </Routes>
+          </div>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

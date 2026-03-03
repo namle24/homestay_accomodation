@@ -47,7 +47,9 @@ class RoleChecker:
         self.allowed_roles = allowed_roles
 
     def __call__(self, current_user: User = Depends(get_current_user)):
-        if current_user.role not in self.allowed_roles:
+        # Provide a safe fallback if role is stored as string rather than Enum
+        current_role = current_user.role.value if hasattr(current_user.role, 'value') else current_user.role
+        if current_role not in self.allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="The user doesn't have enough privileges",

@@ -54,6 +54,7 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
 
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = auth_utils.create_access_token(
-        subject=user.email, expires_delta=access_token_expires
+        subject=user.email, role=user.role, expires_delta=access_token_expires
     )
+
     return {"access_token": access_token, "token_type": "bearer"}
