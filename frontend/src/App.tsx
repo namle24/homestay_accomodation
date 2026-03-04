@@ -9,11 +9,19 @@ import Home from './pages/Home';
 import BookingCheckout from './pages/BookingCheckout';
 import MyBookings from './pages/MyBookings';
 import ManageRooms from './pages/admin/ManageRooms';
+import ReceptionistDashboard from './pages/admin/ReceptionistDashboard';
+import BookingSchedule from './pages/admin/BookingSchedule';
+import BookingArchives from './pages/admin/BookingArchives';
+import Notifications from './pages/admin/Notifications';
+import { LanguageProvider } from './context/LanguageContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <LanguageProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <Router>
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <div className="flex-1">
@@ -30,13 +38,19 @@ function App() {
 
               {/* Admin Routes */}
               <Route element={<AdminRoute />}>
+                 <Route path="/dashboard" element={<ReceptionistDashboard />} />
                  <Route path="/manage-rooms" element={<ManageRooms />} />
+                 <Route path="/schedule" element={<BookingSchedule />} />
+                 <Route path="/archives" element={<BookingArchives />} />
+                 <Route path="/admin/notifications" element={<Notifications />} />
               </Route>
             </Routes>
           </div>
         </div>
       </Router>
-    </AuthProvider>
+        </NotificationProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

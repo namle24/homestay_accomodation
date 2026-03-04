@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import auth, availability, bookings, rooms
+from .api import auth, availability, bookings, rooms, notifications
 from .config import get_settings
 
 
 settings = get_settings()
-print(f"DEBUG: Server using Secret Key {settings.secret_key[:5]}... and Algorithm {settings.algorithm}")
 
 app = FastAPI(
     title=settings.app_name,
@@ -31,6 +30,7 @@ app.include_router(auth.router)
 app.include_router(availability.router)
 app.include_router(bookings.router)
 app.include_router(rooms.router)
+app.include_router(notifications.router)
 
 
 @app.get("/health", tags=["health"])

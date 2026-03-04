@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 import { bookingService } from '../services/bookingService';
 import { roomService } from '../services/roomService';
 import { BookingResponse } from '../types/booking';
@@ -7,6 +8,8 @@ import { Room } from '../types/room';
 
 const MyBookings: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get('highlight');
   
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [rooms, setRooms] = useState<Record<number, Room>>({});
@@ -20,6 +23,7 @@ const MyBookings: React.FC = () => {
     phone_number: '',
     start_date: '',
     end_date: '',
+    quantity: 1,
     notes: '',
     status: 'confirmed'
   });
@@ -52,7 +56,22 @@ const MyBookings: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    
+    // Auto-refresh bookings every 15 seconds to reflect status changes (e.g. from Admin)
+    const interval = setInterval(fetchData, 15000);
+    return () => clearInterval(interval);
   }, [fetchData]);
+
+  useEffect(() => {
+    if (highlightId && !loading && bookings.length > 0) {
+      setTimeout(() => {
+        const element = document.getElementById(`booking-${highlightId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+    }
+  }, [highlightId, loading, bookings]);
 
   const handleWalkInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +87,7 @@ const MyBookings: React.FC = () => {
         phone_number: walkInForm.phone_number,
         start_date: walkInForm.start_date,
         end_date: walkInForm.end_date,
-        quantity: 1,
+        quantity: walkInForm.quantity,
         notes: walkInForm.notes,
         status: walkInForm.status
       });
@@ -79,6 +98,7 @@ const MyBookings: React.FC = () => {
         phone_number: '',
         start_date: '',
         end_date: '',
+        quantity: 1,
         notes: '',
         status: 'confirmed'
       });
@@ -105,9 +125,9 @@ const MyBookings: React.FC = () => {
 
   const formatCurrency = (amountStr: string) => {
     const amount = parseFloat(amountStr);
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'VND',
       maximumFractionDigits: 0
     }).format(amount);
   };
@@ -119,9 +139,11 @@ const MyBookings: React.FC = () => {
       case 'confirmed':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 capitalize">{status}</span>;
       case 'cancelled':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 capitalize">{status}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 capitalize">Cancelled</span>;
       case 'completed':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">{status}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">Completed</span>;
+      case 'checked_in':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 capitalize">Checked-in</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 capitalize">{status}</span>;
     }
@@ -202,7 +224,15 @@ const MyBookings: React.FC = () => {
                         </tr>
                       ) : (
                         bookings.map((booking) => (
-                          <tr key={booking.id}>
+                          <tr 
+                            key={booking.id} 
+                            id={`booking-${booking.id}`}
+                            className={`transition-colors duration-1000 ${
+                              highlightId === booking.id.toString() 
+                                ? 'bg-primary-50 ring-2 ring-primary-500 ring-inset' 
+                                : 'hover:bg-gray-50'
+                            }`}
+                          >
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               #{booking.id}
                             </td>
@@ -232,7 +262,7 @@ const MyBookings: React.FC = () => {
                             
                             {isAdminOrReceptionist && (
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                {booking.status === 'confirmed' && (
+                                {(booking.status === 'confirmed' || booking.status === 'checked_in') && (
                                   <button
                                     onClick={() => handleUpdateStatus(booking.id, 'completed')}
                                     disabled={actionLoading === booking.id}
@@ -243,14 +273,14 @@ const MyBookings: React.FC = () => {
                                 )}
                                 <button
                                   onClick={() => handleUpdateStatus(booking.id, 'confirmed')}
-                                  disabled={booking.status === 'cancelled' || booking.status === 'confirmed' || booking.status === 'completed' || actionLoading === booking.id}
+                                  disabled={booking.status === 'cancelled' || booking.status === 'confirmed' || booking.status === 'completed' || booking.status === 'checked_in' || actionLoading === booking.id}
                                   className="text-green-600 hover:text-green-900 disabled:opacity-30 disabled:cursor-not-allowed mr-4"
                                 >
                                   Confirm
                                 </button>
                                 <button
                                   onClick={() => handleUpdateStatus(booking.id, 'cancelled')}
-                                  disabled={booking.status === 'cancelled' || booking.status === 'completed' || actionLoading === booking.id}
+                                  disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'checked_in' || actionLoading === booking.id}
                                   className="text-red-600 hover:text-red-900 disabled:opacity-30 disabled:cursor-not-allowed"
                                 >
                                   Cancel
@@ -312,7 +342,7 @@ const MyBookings: React.FC = () => {
 
                 {isAdminOrReceptionist && (
                   <div className="flex justify-end space-x-3 pt-3 border-t border-gray-50">
-                    {booking.status === 'confirmed' && (
+                    {(booking.status === 'confirmed' || booking.status === 'checked_in') && (
                       <button
                         onClick={() => handleUpdateStatus(booking.id, 'completed')}
                         disabled={actionLoading === booking.id}
@@ -323,14 +353,14 @@ const MyBookings: React.FC = () => {
                     )}
                     <button
                       onClick={() => handleUpdateStatus(booking.id, 'confirmed')}
-                      disabled={booking.status === 'cancelled' || booking.status === 'confirmed' || booking.status === 'completed' || actionLoading === booking.id}
+                      disabled={booking.status === 'cancelled' || booking.status === 'confirmed' || booking.status === 'completed' || booking.status === 'checked_in' || actionLoading === booking.id}
                       className="px-3 py-1 bg-green-50 text-green-700 font-medium rounded text-sm hover:bg-green-100 disabled:opacity-50 border border-green-200"
                     >
                       Confirm
                     </button>
                     <button
                       onClick={() => handleUpdateStatus(booking.id, 'cancelled')}
-                      disabled={booking.status === 'cancelled' || booking.status === 'completed' || actionLoading === booking.id}
+                      disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'checked_in' || actionLoading === booking.id}
                       className="px-3 py-1 bg-red-50 text-red-700 font-medium rounded text-sm hover:bg-red-100 disabled:opacity-50 border border-red-200"
                     >
                       Cancel
@@ -366,15 +396,38 @@ const MyBookings: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700">Room</label>
                       <select
                         required
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base text-gray-900 border border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
                         value={walkInForm.room_id}
-                        onChange={(e) => setWalkInForm({ ...walkInForm, room_id: e.target.value })}
+                        onChange={(e) => setWalkInForm({ ...walkInForm, room_id: e.target.value, quantity: 1 })}
                       >
                         <option value="">Select a room...</option>
                         {Object.values(rooms).map(room => (
-                          <option key={room.id} value={room.id.toString()}>{room.name} - {formatCurrency(room.base_price.toString())}/night</option>
+                          <option key={room.id} value={room.id.toString()}>
+                            {room.name} ({room.room_type === 'dorm' ? `Dorm · ${room.total_units} beds` : 'Private'}) — {formatCurrency(room.base_price.toString())}/night
+                          </option>
                         ))}
                       </select>
+
+                      {/* Bed count selector — shown only for Dorm rooms */}
+                      {walkInForm.room_id && rooms[parseInt(walkInForm.room_id)]?.room_type === 'dorm' && (
+                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <label className="block text-sm font-semibold text-blue-800 mb-1">
+                            🛏 Number of Beds
+                            <span className="ml-1 text-xs font-normal text-blue-500">
+                              (max: {rooms[parseInt(walkInForm.room_id)]?.total_units} beds available)
+                            </span>
+                          </label>
+                          <input
+                            type="number"
+                            min={1}
+                            max={rooms[parseInt(walkInForm.room_id)]?.total_units}
+                            value={walkInForm.quantity}
+                            onChange={(e) => setWalkInForm({ ...walkInForm, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                            className="block w-28 border border-blue-300 rounded-md shadow-sm py-2 px-3 text-gray-900 text-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                          />
+                          <p className="text-xs text-blue-500 mt-1">Khách có thể đặt nhiều giường cho bạn bè</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -404,22 +457,22 @@ const MyBookings: React.FC = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Check-in</label>
                         <input
-                          type="date"
+                          type="datetime-local"
                           required
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                           value={walkInForm.start_date}
-                          min={new Date().toISOString().split('T')[0]}
+                          min={new Date().toISOString().slice(0, 16)}
                           onChange={(e) => setWalkInForm({ ...walkInForm, start_date: e.target.value })}
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700">Check-out</label>
                         <input
-                          type="date"
+                          type="datetime-local"
                           required
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                           value={walkInForm.end_date}
-                          min={walkInForm.start_date || new Date().toISOString().split('T')[0]}
+                          min={walkInForm.start_date || new Date().toISOString().slice(0, 16)}
                           onChange={(e) => setWalkInForm({ ...walkInForm, end_date: e.target.value })}
                         />
                       </div>

@@ -14,8 +14,8 @@ const Home: React.FC = () => {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   
-  const defaultCheckIn = today.toISOString().split('T')[0];
-  const defaultCheckOut = tomorrow.toISOString().split('T')[0];
+  const defaultCheckIn = today.toISOString().slice(0, 16);
+  const defaultCheckOut = tomorrow.toISOString().slice(0, 16);
 
   const handleSearch = async (checkIn: string, checkOut: string) => {
     setIsLoading(true);

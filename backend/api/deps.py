@@ -43,11 +43,14 @@ def get_current_user(
 
 
 class RoleChecker:
-    def __init__(self, allowed_roles: List[str]):
-        self.allowed_roles = allowed_roles
+    def __init__(self, allowed_roles: list):
+        # Normalize allowed_roles to string values, supporting both Enum members and plain strings
+        self.allowed_roles = [
+            r.value if hasattr(r, 'value') else r for r in allowed_roles
+        ]
 
     def __call__(self, current_user: User = Depends(get_current_user)):
-        # Provide a safe fallback if role is stored as string rather than Enum
+        # Normalize the user's role to a string value
         current_role = current_user.role.value if hasattr(current_user.role, 'value') else current_user.role
         if current_role not in self.allowed_roles:
             raise HTTPException(

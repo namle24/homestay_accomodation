@@ -2,10 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func, and_, or_
-from datetime import date
+from datetime import datetime
 
 from ..db import get_db
 from ..models.booking import Booking, BookingStatusEnum
+from ..models.notification import Notification
 from ..models.room import Room
 from ..models.user import UserRoleEnum
 from ..schemas.booking import BookingCreate, BookingOut, BookingStatusUpdate
@@ -32,7 +33,7 @@ def create_booking(
     # Overlap: booking.start_date < checkout AND booking.end_date > checkin
     overlap_bookings = db.query(func.sum(Booking.quantity)).filter(
         Booking.room_id == booking_in.room_id,
-        Booking.status != BookingStatusEnum.CANCELLED,
+        Booking.status.notin_([BookingStatusEnum.CANCELLED, BookingStatusEnum.COMPLETED]),
         Booking.start_date < booking_in.end_date,
         Booking.end_date > booking_in.start_date
     ).scalar() or 0
@@ -47,8 +48,8 @@ def create_booking(
             detail=f"Not enough available units. Only {available_units} left."
         )
     
-    # 3. Calculate total price
-    num_nights = (booking_in.end_date - booking_in.start_date).days
+    # Calculate total price based on calendar days, minimum 1 night
+    num_nights = max(1, (booking_in.end_date.date() - booking_in.start_date.date()).days)
     total_price = room.base_price * booking_in.quantity * num_nights
 
     # 4. Create booking
@@ -69,6 +70,21 @@ def create_booking(
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
+
+    # 5. Create notification for staff
+    try:
+        notification_msg = f"Đơn đặt phòng mới: {room.name} - {db_booking.guest_name}"
+        notification = Notification(
+            message=notification_msg,
+            booking_id=db_booking.id
+        )
+        db.add(notification)
+        db.commit()
+    except Exception as e:
+        print(f"Failed to create notification: {e}")
+        # We don't fail the booking if notification fails
+        db.rollback()
+
     return db_booking
 
 @router.get("/", response_model=List[BookingOut])
@@ -77,7 +93,7 @@ def list_bookings(
     current_user=Depends(get_current_user)
 ):
     """Protected: Get list of bookings with RBAC filtering."""
-    query = db.query(Booking)
+    query = db.query(Booking).order_by(Booking.created_at.desc())
     
     # RBAC: Admin/Receptionist sees all, User sees only theirs
     if current_user.role not in [UserRoleEnum.ADMIN, UserRoleEnum.RECEPTIONIST]:

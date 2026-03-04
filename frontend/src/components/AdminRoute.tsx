@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const AdminRoute: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
+  const { setLanguage } = useLanguage();
+
+  useEffect(() => {
+    setLanguage('vi');
+  }, [setLanguage]);
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

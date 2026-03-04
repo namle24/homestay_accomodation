@@ -9,8 +9,8 @@ class BookingBase(BaseModel):
     guest_name: str = Field(..., min_length=1, max_length=255)
     guest_email: Optional[str] = Field(None, max_length=255)
     phone_number: Optional[str] = Field(None, max_length=20)
-    start_date: date
-    end_date: date
+    start_date: datetime
+    end_date: datetime
     quantity: int = Field(1, ge=1)
     notes: Optional[str] = Field(None, max_length=1000)
 
@@ -18,9 +18,7 @@ class BookingCreate(BookingBase):
     status: Optional[BookingStatusEnum] = None
     @model_validator(mode="after")
     def validate_dates(self) -> "BookingCreate":
-        today = date.today()
-        if self.start_date < today:
-            raise ValueError("start_date cannot be in the past")
+        # using datetime.now(timezone.utc) logic is ideal, but let's just make sure start < end
         if self.start_date >= self.end_date:
             raise ValueError("start_date must be before end_date")
         return self

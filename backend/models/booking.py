@@ -10,6 +10,7 @@ from ..db import Base
 class BookingStatusEnum(str, PyEnum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
+    CHECKED_IN = "checked_in"
     CANCELLED = "cancelled"
     COMPLETED = "completed"
 
@@ -35,8 +36,8 @@ class Booking(Base):
     phone_number = Column(String(20), nullable=True)
     notes = Column(String(1000), nullable=True)
 
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
+    start_date = Column(DateTime(timezone=True), nullable=False)
+    end_date = Column(DateTime(timezone=True), nullable=False)
 
     quantity = Column(Integer, nullable=False, default=1)
 

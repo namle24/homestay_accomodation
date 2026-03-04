@@ -4,13 +4,18 @@ import { AvailableRoom, Room } from '../types/room';
 export const roomService = {
   checkAvailability: async (checkIn: string, checkOut: string): Promise<AvailableRoom[]> => {
     // API GET /availability?check_in=...&check_out=...
-    const response = await api.get<{rooms: AvailableRoom[]}>('/availability/', {
+    const response = await api.get<{rooms: any[]}>('/availability/', {
       params: {
         check_in: checkIn,
         check_out: checkOut,
       },
     });
-    return response.data.rooms;
+    // Map API response: `name` → `room_name` to match AvailableRoom type
+    return response.data.rooms.map((r: any) => ({
+      ...r,
+      id: r.room_id,
+      room_name: r.name,
+    }));
   },
 
   getRoomById: async (roomId: string): Promise<Room> => {

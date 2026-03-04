@@ -8,17 +8,10 @@ interface RoomCardProps {
   checkOut?: string;
 }
 
+import { formatCurrency } from '../utils/formatters';
+
 const RoomCard: React.FC<RoomCardProps> = ({ room, checkIn, checkOut }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  const formatPrice = (priceStr: string) => {
-    const price = parseFloat(priceStr);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
 
   return (
     <>
@@ -55,7 +48,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, checkIn, checkOut }) => {
                 Starting from
               </p>
               <p className="text-2xl font-black text-primary-600">
-                {formatPrice(room.base_price)}
+                {formatCurrency(room.base_price)}
                 <span className="text-sm font-normal text-gray-400 italic"> /n</span>
               </p>
             </div>

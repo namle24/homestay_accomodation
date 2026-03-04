@@ -17,8 +17,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [checkIn, setCheckIn] = useState(defaultCheckIn);
   const [checkOut, setCheckOut] = useState(defaultCheckOut);
 
-  // Calculate today's date for the 'min' attribute
-  const today = new Date().toISOString().split('T')[0];
+  // Calculate today's date and time for the 'min' attribute
+  const today = new Date().toISOString().slice(0, 16);
 
   // Calculate min checkout date based on selected checkin
   const [minCheckOut, setMinCheckOut] = useState('');
@@ -27,11 +27,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (checkIn) {
       const inDate = new Date(checkIn);
       inDate.setDate(inDate.getDate() + 1); // Checkout must be at least 1 day after checkin
-      setMinCheckOut(inDate.toISOString().split('T')[0]);
+      setMinCheckOut(inDate.toISOString().slice(0, 16));
       
       // If current checkout is invalid, reset it
       if (checkOut && new Date(checkOut) <= new Date(checkIn)) {
-        setCheckOut(inDate.toISOString().split('T')[0]);
+        setCheckOut(inDate.toISOString().slice(0, 16));
       }
     } else {
       setMinCheckOut(today);
@@ -50,10 +50,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-end">
         <div className="flex-1 w-full">
           <label htmlFor="check_in" className="block text-sm font-medium text-gray-700 mb-1">
-            Check-in Date
+            Check-in Date & Time
           </label>
           <input
-            type="date"
+            type="datetime-local"
             id="check_in"
             required
             min={today}
@@ -65,10 +65,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
         
         <div className="flex-1 w-full">
           <label htmlFor="check_out" className="block text-sm font-medium text-gray-700 mb-1">
-            Check-out Date
+            Check-out Date & Time
           </label>
           <input
-            type="date"
+            type="datetime-local"
             id="check_out"
             required
             min={minCheckOut || today}

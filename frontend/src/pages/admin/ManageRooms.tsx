@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { roomService } from '../../services/roomService';
 import { Room, RoomCreate } from '../../types/room';
+import { formatCurrency } from '../../utils/formatters';
+import { useLanguage } from '../../context/LanguageContext';
 
 const ManageRooms: React.FC = () => {
+  const { t } = useLanguage();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -131,15 +134,6 @@ const ManageRooms: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amountStr: string) => {
-    const amount = parseFloat(amountStr);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
   if (loading && rooms.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -153,7 +147,7 @@ const ManageRooms: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="sm:flex sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">Room Management</h1>
+            <h1 className="text-3xl font-extrabold text-gray-900">{t('admin.rooms.title')}</h1>
             <p className="mt-2 text-sm text-gray-500">
               Create, view, update, and categorize the homestay room inventory.
             </p>
@@ -166,7 +160,7 @@ const ManageRooms: React.FC = () => {
               <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Add New Room
+              {t('admin.rooms.add')}
             </button>
           </div>
         </div>
@@ -186,10 +180,10 @@ const ManageRooms: React.FC = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Name</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Units</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Base Price</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin.rooms.form.name')}</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin.rooms.form.type')}</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin.rooms.form.units')}</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('admin.rooms.form.price')}</th>
                       <th scope="col" className="relative px-6 py-3">
                         <span className="sr-only">Actions</span>
                       </th>
@@ -220,13 +214,13 @@ const ManageRooms: React.FC = () => {
                             onClick={() => openEditModal(room)}
                             className="text-primary-600 hover:text-primary-900 mr-4"
                           >
-                            Edit
+                            {t('common.edit')}
                           </button>
                           <button
                             onClick={() => handleDelete(room.id, room.name)}
                             className="text-red-600 hover:text-red-900"
                           >
-                            Delete
+                            {t('common.delete')}
                           </button>
                         </td>
                       </tr>
@@ -254,12 +248,12 @@ const ManageRooms: React.FC = () => {
               <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                 <div>
                   <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                    {editingRoomId ? 'Edit Room' : 'Add New Room'}
+                    {editingRoomId ? t('admin.rooms.edit') : t('admin.rooms.add')}
                   </h3>
                   <div className="mt-4">
                     <form onSubmit={handleFormSubmit} className="space-y-4">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Room Name</label>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">{t('admin.rooms.form.name')}</label>
                         <input
                           type="text"
                           name="name"
@@ -272,13 +266,13 @@ const ManageRooms: React.FC = () => {
                       </div>
                       
                       <div>
-                        <label htmlFor="room_type" className="block text-sm font-medium text-gray-700">Room Type</label>
+                        <label htmlFor="room_type" className="block text-sm font-medium text-gray-700">{t('admin.rooms.form.type')}</label>
                         <select
                           name="room_type"
                           id="room_type"
                           value={formData.room_type}
                           onChange={handleFormChange}
-                          className="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                          className="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                         >
                           <option value="private">Private (1 Room)</option>
                           <option value="dorm">Dorm (Multiple Beds)</option>
@@ -286,7 +280,7 @@ const ManageRooms: React.FC = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="total_units" className="block text-sm font-medium text-gray-700">Total Units / Beds</label>
+                        <label htmlFor="total_units" className="block text-sm font-medium text-gray-700">{t('admin.rooms.form.units')}</label>
                         <input
                           type="number"
                           name="total_units"
@@ -317,7 +311,7 @@ const ManageRooms: React.FC = () => {
                       </div>
 
                       <div>
-                        <span className="block text-sm font-medium text-gray-700 mb-2">Amenities</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">{t('admin.rooms.form.amenities')}</span>
                         <div className="grid grid-cols-2 gap-2">
                           {AMENITIES_OPTIONS.map(amenity => (
                             <label key={amenity} className="inline-flex items-center">
@@ -334,7 +328,7 @@ const ManageRooms: React.FC = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="base_price" className="block text-sm font-medium text-gray-700">Base Price (USD)</label>
+                        <label htmlFor="base_price" className="block text-sm font-medium text-gray-700">{t('admin.rooms.form.price')}</label>
                         <input
                           type="number"
                           name="base_price"
@@ -354,14 +348,14 @@ const ManageRooms: React.FC = () => {
                           disabled={formSubmitting}
                           className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:col-start-2 sm:text-sm disabled:opacity-50"
                         >
-                          {formSubmitting ? 'Saving...' : 'Save'}
+                          {t('common.save')}
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsModalOpen(false)}
                           className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:col-start-1 sm:text-sm"
                         >
-                          Cancel
+                          {t('common.cancel')}
                         </button>
                       </div>
                     </form>

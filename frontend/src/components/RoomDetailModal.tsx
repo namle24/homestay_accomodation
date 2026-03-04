@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AvailableRoom } from '../types/room';
 import { useAuth } from '../contexts/AuthContext';
+import { formatCurrency } from '../utils/formatters';
 
 interface RoomDetailModalProps {
   room: AvailableRoom;
@@ -20,15 +21,6 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, checkIn, checkO
     'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=1200',
     'https://images.unsplash.com/photo-1560448204-61dc36dc98c8?auto=format&fit=crop&q=80&w=1200'
   ];
-
-  const formatPrice = (priceStr: string) => {
-    const price = parseFloat(priceStr);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
 
   const handleBookNow = () => {
     if (!isAuthenticated) {
@@ -191,7 +183,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, checkIn, checkO
                 <div className="mb-6">
                   <p className="text-sm text-gray-500">Starting from</p>
                   <p className="text-4xl font-black text-primary-600">
-                    {formatPrice(room.base_price)}
+                    {formatCurrency(room.base_price)}
                     <span className="text-sm font-normal text-gray-500"> /night</span>
                   </p>
                 </div>

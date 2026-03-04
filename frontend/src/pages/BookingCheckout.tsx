@@ -8,8 +8,8 @@ import { Room } from '../types/room';
 const BookingCheckout: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const [searchParams] = useSearchParams();
-  const checkIn = searchParams.get('checkIn');
-  const checkOut = searchParams.get('checkOut');
+  const [checkIn, setCheckIn] = useState(searchParams.get('checkIn') || '');
+  const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '');
   
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const BookingCheckout: React.FC = () => {
   const [room, setRoom] = useState<Room | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [guestName, setGuestName] = useState(user?.email?.split('@')[0] || '');
+  const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState(user?.email || '');
   
   const [loadingRoom, setLoadingRoom] = useState(true);
@@ -28,8 +28,24 @@ const BookingCheckout: React.FC = () => {
   const getDaysDiff = (start: string, end: string) => {
     const d1 = new Date(start);
     const d2 = new Date(end);
+    // Ignore time for standard hotel night calculation (count midnights crossed)
+    d1.setHours(0, 0, 0, 0);
+    d2.setHours(0, 0, 0, 0);
     const diffTime = Math.abs(d2.getTime() - d1.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(1, days); // Minimum 1 night
+  };
+  
+  const formatDatePreview = (isoString: string) => {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    // If there is no time provided (e.g. just date), add default time to look nice
+    if (isoString.length <= 10) d.setHours(14, 0, 0);
+    
+    return d.toLocaleString('vi-VN', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   };
   
   const nights = (checkIn && checkOut) ? getDaysDiff(checkIn, checkOut) : 0;
@@ -100,9 +116,9 @@ const BookingCheckout: React.FC = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'VND',
       maximumFractionDigits: 0
     }).format(amount);
   };
@@ -156,13 +172,25 @@ const BookingCheckout: React.FC = () => {
                   <p className="text-sm text-gray-500 capitalize mt-1">{room.room_type} Room</p>
                   
                   <div className="mt-4 space-y-2 text-sm text-gray-700">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Check-in:</span>
-                      <span>{checkIn}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Check-out:</span>
-                      <span>{checkOut}</span>
+                    <div className="flex flex-col gap-2">
+                       <div className="flex justify-between items-center">
+                        <span className="font-medium">Check-in:</span>
+                        <input 
+                          type="datetime-local" 
+                          value={checkIn}
+                          onChange={(e) => setCheckIn(e.target.value)}
+                          className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-primary-500"
+                        />
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Check-out:</span>
+                        <input 
+                          type="datetime-local" 
+                          value={checkOut}
+                          onChange={(e) => setCheckOut(e.target.value)}
+                          className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-primary-500"
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
                       <span className="font-medium">Duration:</span>

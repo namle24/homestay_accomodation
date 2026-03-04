@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
@@ -17,8 +17,8 @@ router = APIRouter(prefix="/availability", tags=["Availability"])
 
 @router.get("/", response_model=AvailabilityResponse)
 def get_availability(
-    check_in: date = Query(..., alias="check_in"),
-    check_out: date = Query(..., alias="check_out"),
+    check_in: datetime = Query(..., alias="check_in"),
+    check_out: datetime = Query(..., alias="check_out"),
     db: Session = Depends(get_db),
 ) -> AvailabilityResponse:
     if check_in >= check_out:
@@ -31,8 +31,8 @@ def get_availability(
             func.coalesce(func.sum(Booking.quantity), 0).label("booked_quantity"),
         )
         .filter(
-            Booking.status.in_(
-                [BookingStatusEnum.PENDING, BookingStatusEnum.CONFIRMED]
+            Booking.status.notin_(
+                [BookingStatusEnum.CANCELLED, BookingStatusEnum.COMPLETED]
             ),
             Booking.start_date < check_out,
             Booking.end_date > check_in,
@@ -68,6 +68,8 @@ def get_availability(
             room_id=row.room_id,
             name=row.name,
             room_type=row.room_type,
+            description=row.description,
+            amenities=row.amenities,
             base_price=row.base_price,
             available_units=row.available_units,
         )
