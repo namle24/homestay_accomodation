@@ -36,17 +36,6 @@ const BookingCheckout: React.FC = () => {
     return Math.max(1, days); // Minimum 1 night
   };
   
-  const formatDatePreview = (isoString: string) => {
-    if (!isoString) return '';
-    const d = new Date(isoString);
-    // If there is no time provided (e.g. just date), add default time to look nice
-    if (isoString.length <= 10) d.setHours(14, 0, 0);
-    
-    return d.toLocaleString('vi-VN', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-  };
   
   const nights = (checkIn && checkOut) ? getDaysDiff(checkIn, checkOut) : 0;
   
@@ -82,13 +71,17 @@ const BookingCheckout: React.FC = () => {
     setError('');
 
     try {
+      // Standardize check-out time to 12:00:00 (Hotel standard)
+      // If checkOut is just a date string (YYYY-MM-DD), append time
+      const finalCheckOut = checkOut.includes('T') ? checkOut : `${checkOut}T12:00:00`;
+      
       await bookingService.createBooking({
         room_id: parseInt(roomId),
         guest_name: guestName,
         guest_email: guestEmail,
         phone_number: phoneNumber,
         start_date: checkIn,
-        end_date: checkOut,
+        end_date: finalCheckOut,
         quantity: quantity,
       });
 
@@ -178,15 +171,17 @@ const BookingCheckout: React.FC = () => {
                         <input 
                           type="datetime-local" 
                           value={checkIn}
+                          min={new Date().toISOString().slice(0, 16)}
                           onChange={(e) => setCheckIn(e.target.value)}
                           className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-primary-500"
                         />
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="font-medium">Check-out:</span>
+                        <span className="font-medium">Check-out Date:</span>
                         <input 
-                          type="datetime-local" 
-                          value={checkOut}
+                          type="date" 
+                          value={checkOut.split('T')[0]}
+                          min={checkIn ? new Date(new Date(checkIn).getTime() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                           onChange={(e) => setCheckOut(e.target.value)}
                           className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-primary-500"
                         />

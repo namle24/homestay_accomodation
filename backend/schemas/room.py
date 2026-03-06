@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, model_validator, ConfigDict
 from decimal import Decimal
 from datetime import datetime
 
-from backend.models.room import RoomTypeEnum
+from backend.models.room import RoomTypeEnum, RoomStatusEnum
 
 class RoomBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -12,6 +12,7 @@ class RoomBase(BaseModel):
     amenities: Optional[list[str]] = Field(default_factory=list)
     base_price: Decimal = Field(..., ge=0)
     total_units: int = Field(..., ge=1)
+    status: RoomStatusEnum = RoomStatusEnum.AVAILABLE
 
 class RoomCreate(RoomBase):
     @model_validator(mode="after")
@@ -29,6 +30,7 @@ class RoomUpdate(BaseModel):
     amenities: Optional[list[str]] = None
     base_price: Optional[Decimal] = Field(None, ge=0)
     total_units: Optional[int] = Field(None, ge=1)
+    status: Optional[RoomStatusEnum] = None
 
     @model_validator(mode="after")
     def validate_inventory_rules(self) -> "RoomUpdate":

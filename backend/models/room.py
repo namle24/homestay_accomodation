@@ -12,6 +12,12 @@ class RoomTypeEnum(str, PyEnum):
     DORM = "dorm"
 
 
+class RoomStatusEnum(str, PyEnum):
+    AVAILABLE = "available"
+    CLEANING = "cleaning"
+    MAINTENANCE = "maintenance"
+
+
 class Room(Base):
     __tablename__ = "rooms"
 
@@ -20,6 +26,11 @@ class Room(Base):
     room_type = Column(
         Enum(RoomTypeEnum, name="room_type_enum"),
         nullable=False,
+    )
+    status = Column(
+        Enum(RoomStatusEnum, name="room_status_enum"),
+        nullable=False,
+        default=RoomStatusEnum.AVAILABLE,
     )
     total_units = Column(Integer, nullable=False, default=1)
     description = Column(Text, nullable=True)

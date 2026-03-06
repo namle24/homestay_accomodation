@@ -26,7 +26,7 @@ const RoomList: React.FC<RoomListProps> = ({ rooms, checkIn, checkOut }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {rooms.map((room) => (
-        <RoomCard key={room.room_id} room={room} checkIn={checkIn} checkOut={checkOut} />
+        <RoomCard key={room.room_id || room.id} room={room} checkIn={checkIn} checkOut={checkOut} />
       ))}
     </div>
   );

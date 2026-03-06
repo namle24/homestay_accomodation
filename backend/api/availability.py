@@ -42,6 +42,9 @@ def get_availability(
     )
 
     # Join rooms với subquery, tính available_units = total_units - booked_quantity
+    # Phase 11: Chỉ lấy phòng có trạng thái 'available'
+    from backend.models.room import RoomStatusEnum
+    
     query = (
         db.query(
             Room.id.label("room_id"),
@@ -56,6 +59,7 @@ def get_availability(
         )
         .outerjoin(booked_subq, Room.id == booked_subq.c.room_id)
         .filter(
+            Room.status == RoomStatusEnum.AVAILABLE,
             (Room.total_units - func.coalesce(booked_subq.c.booked_quantity, 0)) > 0
         )
         .order_by(Room.id)

@@ -18,7 +18,12 @@ class BookingCreate(BookingBase):
     status: Optional[BookingStatusEnum] = None
     @model_validator(mode="after")
     def validate_dates(self) -> "BookingCreate":
-        # using datetime.now(timezone.utc) logic is ideal, but let's just make sure start < end
+        now = datetime.now()
+        # Allow today's bookings, but not past days. 
+        # Comparing dates to allow for the current day regardless of exact time.
+        if self.start_date.date() < now.date():
+            raise ValueError("start_date cannot be in the past")
+            
         if self.start_date >= self.end_date:
             raise ValueError("start_date must be before end_date")
         return self

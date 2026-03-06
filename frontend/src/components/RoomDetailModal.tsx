@@ -16,10 +16,14 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, checkIn, checkO
   const { isAuthenticated } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  const roomTypePath = (room.room_type || 'dorm').toLowerCase() === 'private' ? 'private' : 'dorm';
+  
+  // Array of image paths for the slideshow
+  // We'll look for main.png, 2.png, 3.png in the respective folder
   const images = [
-    'https://images.unsplash.com/photo-1590392848650-0639d677864c?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1560448204-61dc36dc98c8?auto=format&fit=crop&q=80&w=1200'
+    `/images/rooms/${roomTypePath}/main.png`,
+    `/images/rooms/${roomTypePath}/2.png`,
+    `/images/rooms/${roomTypePath}/3.png`
   ];
 
   const handleBookNow = () => {
@@ -183,7 +187,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, checkIn, checkO
                 <div className="mb-6">
                   <p className="text-sm text-gray-500">Starting from</p>
                   <p className="text-4xl font-black text-primary-600">
-                    {formatCurrency(room.base_price)}
+                    {formatCurrency(room.base_price || 0)}
                     <span className="text-sm font-normal text-gray-500"> /night</span>
                   </p>
                 </div>

@@ -7,7 +7,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { formatCurrency } from '../../utils/formatters';
 
-type RoomStatus = 'available' | 'occupied' | 'reserved';
+type RoomStatus = 'available' | 'occupied' | 'reserved' | 'cleaning' | 'maintenance';
 
 interface RoomWithStatus {
   room: Room;
@@ -39,13 +39,14 @@ const ReceptionistDashboard: React.FC = () => {
         const now = new Date();
         
         // Find a booking that makes this room occupied today
-        // Occupied: status is 'confirmed' or 'checked_in', and now is between start and end
+        // Occupied: status is 'checked_in' (active stay) OR 'confirmed' and current time is within range
         const occupiedBooking = bookings.find(
           (b) =>
             b.room_id === room.id &&
-            (b.status === 'confirmed' || b.status === 'checked_in') &&
-            new Date(b.start_date) <= now &&
-            new Date(b.end_date) > now
+            (
+              (b.status === 'checked_in' && new Date(b.end_date) > now) ||
+              (b.status === 'confirmed' && new Date(b.start_date) <= now && new Date(b.end_date) > now)
+            )
         );
 
         if (occupiedBooking) {
@@ -68,7 +69,8 @@ const ReceptionistDashboard: React.FC = () => {
           return { room, status: 'reserved', activeBooking: reservedBooking };
         }
 
-        return { room, status: 'available' };
+        // If no active/upcoming booking, use the specific room maintenance status
+        return { room, status: room.status as RoomStatus };
       });
 
       setRoomsWithStatus(result);
@@ -104,6 +106,19 @@ const ReceptionistDashboard: React.FC = () => {
       await fetchData();
     } catch (err) {
       alert('Failed to check in. Please try again.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUpdateRoomStatus = async (roomId: number, status: 'available' | 'cleaning' | 'maintenance') => {
+    setActionLoading(true);
+    try {
+      await roomService.updateRoom(roomId, { status });
+      addToast(`Phòng đã được chuyển sang trạng thái: ${status}`, 'success');
+      await fetchData();
+    } catch (err) {
+      addToast('Không thể cập nhật trạng thái phòng.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -148,6 +163,18 @@ const ReceptionistDashboard: React.FC = () => {
       dot: 'bg-emerald-500',
       badge: 'bg-emerald-100 text-emerald-700',
       label: t('admin.dashboard.available'),
+    },
+    cleaning: {
+      bg: 'bg-blue-50 border-blue-200',
+      dot: 'bg-blue-400',
+      badge: 'bg-blue-100 text-blue-700',
+      label: t('admin.dashboard.cleaning'),
+    },
+    maintenance: {
+      bg: 'bg-gray-100 border-gray-300',
+      dot: 'bg-gray-500',
+      badge: 'bg-gray-200 text-gray-700',
+      label: t('admin.dashboard.maintenance'),
     },
   };
 
@@ -265,7 +292,7 @@ const ReceptionistDashboard: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(({ room, status, activeBooking }) => {
             const cfg = statusConfig[status];
-            const isClickable = status !== 'available';
+            const isClickable = !!activeBooking;
             return (
               <div
                 key={room.id}
@@ -281,10 +308,17 @@ const ReceptionistDashboard: React.FC = () => {
                     <p className="text-xs text-gray-500 mt-0.5 capitalize">{room.room_type} room</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-2.5 h-2.5 rounded-full ${cfg.dot} animate-pulse`}></span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${cfg.dot} ${status === 'occupied' || status === 'reserved' ? 'animate-pulse' : ''}`}></span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
                   </div>
                 </div>
+
+                {/* Maintenance Status Badge if applicable */}
+                {status === 'available' && room.status !== 'available' && (
+                  <div className={`text-xs font-bold px-3 py-1 rounded-lg text-center ${statusConfig[room.status].badge}`}>
+                    {room.status === 'cleaning' ? t('admin.dashboard.cleaning').toUpperCase() : t('admin.dashboard.maintenance').toUpperCase()}
+                  </div>
+                )}
 
                 {/* Guest Info (if occupied/reserved) */}
                 {activeBooking && (
@@ -344,9 +378,47 @@ const ReceptionistDashboard: React.FC = () => {
                   </div>
                 )}
 
-                {status === 'available' && (
-                  <div className="text-xs text-emerald-600 font-medium text-center py-2">
-                    ✓ Ready for new guests
+                {status === 'available' && !activeBooking && (
+                  <div className="space-y-2 mt-2">
+                    <div className={`text-xs ${room.status === 'available' ? 'text-emerald-600' : 'text-gray-500'} font-medium text-center py-1`}>
+                      {room.status === 'available' 
+                        ? `✓ ${t('admin.dashboard.ready')}` 
+                        : (room.status === 'cleaning' ? t('admin.dashboard.roomCleaning') : t('admin.dashboard.roomMaintenance'))
+                      }
+                    </div>
+                    <div className="flex gap-2">
+                      <select 
+                        className="flex-1 text-[10px] border border-gray-300 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                        value={room.status}
+                        onChange={(e) => handleUpdateRoomStatus(room.id, e.target.value as any)}
+                        disabled={actionLoading}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <option value="available">{t('admin.dashboard.available')}</option>
+                        <option value="cleaning">{t('admin.dashboard.cleaning')}</option>
+                        <option value="maintenance">{t('admin.dashboard.maintenance')}</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status Switcher for non-available states without booking */}
+                {(status === 'cleaning' || status === 'maintenance') && !activeBooking && (
+                  <div className="space-y-2 mt-2">
+                    <div className={`text-xs text-white/90 font-bold text-center py-1 rounded bg-black/10`}>
+                      {status === 'cleaning' ? t('admin.dashboard.roomCleaning') : t('admin.dashboard.roomMaintenance')}
+                    </div>
+                    <select 
+                      className="w-full text-[10px] border border-gray-300 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white text-gray-900 font-semibold shadow-sm"
+                      value={room.status}
+                      onChange={(e) => handleUpdateRoomStatus(room.id, e.target.value as any)}
+                      disabled={actionLoading}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <option value="available">{t('admin.dashboard.available')}</option>
+                      <option value="cleaning">{t('admin.dashboard.cleaning')}</option>
+                      <option value="maintenance">{t('admin.dashboard.maintenance')}</option>
+                    </select>
                   </div>
                 )}
 

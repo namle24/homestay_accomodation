@@ -81,12 +81,15 @@ const MyBookings: React.FC = () => {
         alert('Please select a room');
         return;
       }
+      // Standardize check-out time to 12:00:00
+      const finalCheckOut = walkInForm.end_date.includes('T') ? walkInForm.end_date : `${walkInForm.end_date}T12:00:00`;
+
       await bookingService.createBooking({
         room_id: parseInt(walkInForm.room_id),
         guest_name: walkInForm.guest_name,
         phone_number: walkInForm.phone_number,
         start_date: walkInForm.start_date,
-        end_date: walkInForm.end_date,
+        end_date: finalCheckOut,
         quantity: walkInForm.quantity,
         notes: walkInForm.notes,
         status: walkInForm.status
@@ -466,13 +469,13 @@ const MyBookings: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Check-out</label>
+                        <label className="block text-sm font-medium text-gray-700">Check-out Date</label>
                         <input
-                          type="datetime-local"
+                          type="date"
                           required
                           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                          value={walkInForm.end_date}
-                          min={walkInForm.start_date || new Date().toISOString().slice(0, 16)}
+                          value={walkInForm.end_date.split('T')[0]}
+                          min={walkInForm.start_date ? new Date(new Date(walkInForm.start_date).getTime() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                           onChange={(e) => setWalkInForm({ ...walkInForm, end_date: e.target.value })}
                         />
                       </div>

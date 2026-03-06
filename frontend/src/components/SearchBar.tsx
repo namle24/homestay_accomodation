@@ -65,14 +65,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
         
         <div className="flex-1 w-full">
           <label htmlFor="check_out" className="block text-sm font-medium text-gray-700 mb-1">
-            Check-out Date & Time
+            Check-out Date
           </label>
           <input
-            type="datetime-local"
+            type="date"
             id="check_out"
             required
-            min={minCheckOut || today}
-            value={checkOut}
+            min={minCheckOut.split('T')[0] || today.split('T')[0]}
+            value={checkOut.split('T')[0]}
             onChange={(e) => setCheckOut(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
           />

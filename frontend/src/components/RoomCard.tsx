@@ -25,9 +25,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, checkIn, checkOut }) => {
             {room.room_type}
           </div>
           <img 
-            src="https://images.unsplash.com/photo-1590392848650-0639d677864c?auto=format&fit=crop&q=80&w=800" 
+            src={`/images/rooms/${(room.room_type || 'dorm').toLowerCase() === 'private' ? 'private' : 'dorm'}/main.png`} 
             alt={room.room_name} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         </div>
@@ -48,7 +51,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, checkIn, checkOut }) => {
                 Starting from
               </p>
               <p className="text-2xl font-black text-primary-600">
-                {formatCurrency(room.base_price)}
+                {formatCurrency(room.base_price || 0)}
                 <span className="text-sm font-normal text-gray-400 italic"> /n</span>
               </p>
             </div>

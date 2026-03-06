@@ -6,6 +6,7 @@ export interface Room {
   base_price: string;
   description?: string;
   amenities?: string[];
+  status: 'available' | 'cleaning' | 'maintenance';
 }
 
 export interface AvailableRoom extends Room {
@@ -21,6 +22,7 @@ export interface RoomCreate {
   base_price: string;
   description?: string;
   amenities?: string[];
+  status?: 'available' | 'cleaning' | 'maintenance';
 }
 
 export interface RoomUpdate {
@@ -30,4 +32,5 @@ export interface RoomUpdate {
   base_price?: string;
   description?: string;
   amenities?: string[];
+  status?: 'available' | 'cleaning' | 'maintenance';
 }

@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-extrabold text-primary-600 tracking-tight">Homestay Oasis</span>
+              <span className="text-2xl font-extrabold text-primary-600 tracking-tight">Homestay Suối Khoáng Minh Hằng</span>
             </Link>
           </div>
 
