@@ -89,8 +89,15 @@ You can easily personalize the website by overwriting files in the following dir
 | **Our Story**     | `frontend/public/images/about/`         | `story.png`, `story2.png`, `story3.png`        |
 | **Activities**    | `frontend/public/images/activities/`    | `hot-spring.png`, `comfort.png`, `culture.png` |
 
+
 > [!IMPORTANT]
-> **[INSERT RECEPTIONIST DASHBOARD SCREENSHOT HERE]**
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145548" src="https://github.com/user-attachments/assets/468c838d-02ca-4ed1-b7eb-a57bc09d13a4" />
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145541" src="https://github.com/user-attachments/assets/eff905c3-f6ef-40e2-8bae-356d6e39b06f" />
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145538" src="https://github.com/user-attachments/assets/2e36dd76-089c-497f-93d1-12890d945f28" />
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145530" src="https://github.com/user-attachments/assets/50e8e9ff-0a68-4082-952c-3687b549d1d7" />
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145433" src="https://github.com/user-attachments/assets/8d940ee6-e97b-4b6c-9f2b-2ad5a90ba059" />
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145413" src="https://github.com/user-attachments/assets/c6b987c2-6361-43e2-bbdb-387557bbdfe7" />
+<img width="1920" height="1040" alt="Screenshot 2026-03-06 145407" src="https://github.com/user-attachments/assets/28462c0f-f32c-435c-8169-baa1aeccbfd7" />
 > _Description: Dashboard showing the color-coded room grid._
 
 ---
