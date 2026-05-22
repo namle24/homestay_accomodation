@@ -41,6 +41,7 @@ homestay.db
 *.db
 
 # Internal / AI / local docs (not for public repo)
+AGENTS.md
 HUONG_DAN_CHAY.md
 walkthrough.md
 code_explanation*.md
