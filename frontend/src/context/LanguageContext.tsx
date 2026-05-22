@@ -25,14 +25,8 @@ const enTranslations: Translations = {
 
   // Footer
   'footer.about': 'About Us',
-  'footer.aboutText': 'Experience authentic living with Homestay Suối Khoáng Nóng Minh Hằng. Discover comfort, natural hot springs, and unforgettable stays in Van Chan, Yen Bai.',
+  'footer.aboutText': 'Experience authentic living with Lehona. Discover comfort, natural hot springs, and unforgettable stays.',
   'footer.quickLinks': 'Quick Links',
-  'footer.contact': 'Contact Us',
-  'footer.address': 'HHCC+M8, Van Chan District, Yen Bai, Vietnam',
-  'footer.phone': '+84 123 456 789',
-  'footer.email': 'hello@homestayoasis.com',
-  'footer.followUs': 'Follow Us',
-  'footer.viewMap': 'View on Google Maps',
 
   // Common
   'common.search': 'Search',
@@ -72,7 +66,7 @@ const enTranslations: Translations = {
   'admin.dashboard.search': 'Tìm kiếm tên, SĐT, hoặc phòng...',
   'admin.dashboard.types.all': 'Tất cả',
   'admin.dashboard.types.private': 'Phòng Riêng',
-  'admin.dashboard.types.dorm': 'Phòng Dorm',
+  'admin.dashboard.types.dorm': 'Phòng Tập Thể',
   'admin.dashboard.checkoutBtn': 'Thanh toán nhanh',
   'admin.dashboard.cleaning': 'Cleaning',
   'admin.dashboard.maintenance': 'Maintenance',
@@ -116,14 +110,8 @@ const viTranslations: Translations = {
 
   // Footer
   'footer.about': 'Về chúng tôi',
-  'footer.aboutText': 'Trải nghiệm cuộc sống đích thực tại Homestay Suối Khoáng Nóng Minh Hằng. Khám phá sự thoải mái, suối khoáng nóng tự nhiên và những kỳ nghỉ khó quên tại Văn Chấn, Yên Bái.',
+  'footer.aboutText': 'Trải nghiệm cuộc sống đích thực tại Lehona. Khám phá sự thoải mái, suối khoáng nóng tự nhiên và những kỳ nghỉ khó quên.',
   'footer.quickLinks': 'Liên kết nhanh',
-  'footer.contact': 'Liên hệ',
-  'footer.address': 'HHCC+M8, Huyện Văn Chấn, Yên Bái, Việt Nam',
-  'footer.phone': '0123 456 789',
-  'footer.email': 'hello@homestayoasis.com',
-  'footer.followUs': 'Theo dõi chúng tôi',
-  'footer.viewMap': 'Xem trên Google Maps',
 
   // Common
   'common.search': 'Tìm kiếm',
@@ -163,7 +151,7 @@ const viTranslations: Translations = {
   'admin.dashboard.search': 'Tìm kiếm tên, SĐT, hoặc phòng...',
   'admin.dashboard.types.all': 'Tất cả',
   'admin.dashboard.types.private': 'Phòng Riêng',
-  'admin.dashboard.types.dorm': 'Phòng Dorm',
+  'admin.dashboard.types.dorm': 'Phòng Tập Thể',
   'admin.dashboard.checkoutBtn': 'Thanh toán nhanh',
   'admin.dashboard.cleaning': 'Đang dọn dẹp',
   'admin.dashboard.maintenance': 'Bảo trì',

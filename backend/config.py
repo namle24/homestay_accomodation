@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Homestay Accommodation Backend"
+    app_name: str = "Lehona Backend"
     environment: str = "development"
 
     database_url: str = "sqlite:///./homestay.db"

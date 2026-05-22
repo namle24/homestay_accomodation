@@ -171,7 +171,7 @@ const MyBookings: React.FC = () => {
             <p className="mt-1 flex items-center text-sm text-gray-500">
               {isAdminOrReceptionist ? 
                 'Manage all reservations across the system. Approve or cancel bookings.' : 
-                'View your past and upcoming stays at Homestay Oasis.'}
+                'View your past and upcoming stays at Lehona.'}
             </p>
           </div>
           {isAdminOrReceptionist && (
@@ -184,7 +184,7 @@ const MyBookings: React.FC = () => {
                 <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                New Walk-in Booking
+                Đặt Phòng Mới Tại Quầy
               </button>
             </div>
           )}
@@ -385,7 +385,7 @@ const MyBookings: React.FC = () => {
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg leading-6 font-bold text-gray-900" id="modal-title">
-                      New Walk-in Booking
+                      Đặt Phòng Mới Tại Quầy
                     </h3>
                     <button onClick={() => setIsWalkInModalOpen(false)} className="text-gray-400 hover:text-gray-500 focus:outline-none">
                       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -406,7 +406,7 @@ const MyBookings: React.FC = () => {
                         <option value="">Select a room...</option>
                         {Object.values(rooms).map(room => (
                           <option key={room.id} value={room.id.toString()}>
-                            {room.name} ({room.room_type === 'dorm' ? `Dorm · ${room.total_units} beds` : 'Private'}) — {formatCurrency(room.base_price.toString())}/night
+                            {room.name} ({room.room_type === 'dorm' ? `Phòng Tập Thể · ${room.total_units} giường` : 'Phòng Riêng'}) — {formatCurrency(room.base_price.toString())}/đêm
                           </option>
                         ))}
                       </select>
@@ -415,9 +415,9 @@ const MyBookings: React.FC = () => {
                       {walkInForm.room_id && rooms[parseInt(walkInForm.room_id)]?.room_type === 'dorm' && (
                         <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                           <label className="block text-sm font-semibold text-blue-800 mb-1">
-                            🛏 Number of Beds
+                            🛏 Số lượng giường
                             <span className="ml-1 text-xs font-normal text-blue-500">
-                              (max: {rooms[parseInt(walkInForm.room_id)]?.total_units} beds available)
+                              (tối đa: {rooms[parseInt(walkInForm.room_id)]?.total_units} giường sẵn có)
                             </span>
                           </label>
                           <input

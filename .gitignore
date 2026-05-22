@@ -29,6 +29,25 @@ out.txt
 final.txt
 test_results.txt
 pytest_results.txt
+*_test_results.txt
+bookings_test_results.txt
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Local database (do not commit dev data)
+homestay.db
+*.db
+
+# Internal / AI / local docs (not for public repo)
+HUONG_DAN_CHAY.md
+walkthrough.md
+code_explanation*.md
+PROJECT_STATE.md
+PROJECT_REVIEW.md
+DESIGN_DECISIONS.md
+STYLE_GUIDE.md
 
 # OS
 Thumbs.db

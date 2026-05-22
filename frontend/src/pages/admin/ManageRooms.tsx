@@ -204,7 +204,7 @@ const ManageRooms: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {room.total_units} {room.room_type === 'dorm' ? 'Beds' : 'Rooms'}
+                          {room.total_units} {room.room_type === 'dorm' ? 'Giường' : 'Phòng'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                           {formatCurrency(room.base_price)}
@@ -275,7 +275,7 @@ const ManageRooms: React.FC = () => {
                           className="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                         >
                           <option value="private">Private (1 Room)</option>
-                          <option value="dorm">Dorm (Multiple Beds)</option>
+                          <option value="dorm">Phòng Tập Thể (Nhiều Giường)</option>
                         </select>
                       </div>
 

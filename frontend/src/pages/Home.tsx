@@ -72,19 +72,19 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 z-0">
           <img 
             src="/images/hero/banner.png" 
-            alt="Homestay Suối Khoáng Nóng Minh Hằng" 
+            alt="Lehona homestay" 
             className="w-full h-full object-cover scale-105 animate-slow-zoom"
           />
           <div className="absolute inset-0 bg-black/50"></div>
         </div>
         
         <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-7xl font-extrabold text-white tracking-tight drop-shadow-2xl">
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-white tracking-tight drop-shadow-2xl">
             Welcome to <br/>
-            <span className="text-primary-400">Homestay Suối Khoáng Minh Hằng</span>
+            <span className="text-primary-400">Lehona</span>
           </h1>
           <p className="mt-8 text-xl text-gray-100 max-w-3xl mx-auto drop-shadow-lg font-medium">
-            Experience the healing power of natural thermal waters in the heart of Yên Bái. Your ultimate sanctuary for wellness and peace.
+            Experience the healing power of natural thermal waters. Your sanctuary for wellness and peace.
           </p>
           <div className="mt-10">
             <button 
@@ -121,14 +121,14 @@ const Home: React.FC = () => {
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-gray-900">Experience Our Activities</h2>
                 <div className="h-1.5 w-24 bg-primary-600 mx-auto mt-4 rounded-full"></div>
-                <p className="mt-4 text-gray-600">Unwind in our natural hot springs and explore the beauty of Van Chan.</p>
+                <p className="mt-4 text-gray-600">Unwind in our natural hot springs and explore the surrounding landscape.</p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
                   { title: 'Natural Hot Springs', img: '/images/activities/hot-spring.png', desc: 'Relax in mineral-rich waters.' },
                   { title: 'Deluxe Comfort', img: '/images/activities/comfort.png', desc: 'Wake up to misty mountain views.' },
-                  { title: 'Local Culture', img: '/images/activities/culture.png', desc: 'Explore the heart of Yen Bai.' },
+                  { title: 'Local Culture', img: '/images/activities/culture.png', desc: 'Explore local traditions and scenery.' },
                 ].map((item, idx) => (
                   <div key={idx} className="group relative h-64 overflow-hidden rounded-xl shadow-lg cursor-pointer">
                     <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -161,10 +161,10 @@ const Home: React.FC = () => {
                 <div className="space-y-6">
                   <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Our Story & Style</h2>
                   <p className="text-lg text-gray-600 leading-relaxed italic border-l-4 border-primary-500 pl-4">
-                    "At Minh Hằng Hot Spring, we believe travel should be personal, comfortable, and deeply connected to the natural healing energy of our land."
+                    "At Lehona, we believe travel should be personal, comfortable, and deeply connected to the natural healing energy of our land."
                   </p>
                   <p className="text-gray-600 leading-relaxed">
-                    Nestled in the picturesque valley of Van Chan, our homestay was designed to provide a luxury retreat focused on wellness and tradition. Our natural hot spring pools are the heart of the experience, offering rejuvenation for both body and soul.
+                    Our homestay was designed as a luxury retreat focused on wellness and tradition. Natural hot spring pools are the heart of the experience, offering rejuvenation for both body and soul.
                   </p>
                   <div className="grid grid-cols-2 gap-6 pt-4">
                     <div>
@@ -182,7 +182,7 @@ const Home: React.FC = () => {
                     <img 
                       key={img}
                       src={img} 
-                      alt={`Minh Hằng Story ${index + 1}`} 
+                      alt={`Lehona story ${index + 1}`} 
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                         index === currentAboutImageIndex ? 'opacity-100' : 'opacity-0'
                       }`}
